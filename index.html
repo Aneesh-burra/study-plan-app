@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StudyLane: a study schedule built from your syllabi</title>
+<meta name="description" content="Upload your syllabi and notes. StudyLane builds a week-by-week study schedule, practice quizzes, and flashcards for every course. $7/month.">
+<style>
+  :root {
+    --bg: #f2f5fa;
+    --surface: #ffffff;
+    --ink: #13203b;
+    --muted: #55617a;
+    --line: #d9e0ee;
+    --accent: #2f55e8;
+    --accent-ink: #ffffff;
+    --lane-a: #1c9c86;
+    --lane-b: #7a4fe0;
+    --lane-c: #e0a21b;
+    --lane-d: #2f55e8;
+    --radius: 14px;
+    --sans: "Avenir Next", "Segoe UI Variable", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1424;
+      --surface: #161e33;
+      --ink: #eef2fb;
+      --muted: #a2adc6;
+      --line: #28324d;
+      --accent: #7b96ff;
+      --accent-ink: #0e1424;
+      --lane-a: #3fcfb4;
+      --lane-b: #a98bff;
+      --lane-c: #f2c254;
+      --lane-d: #7b96ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+  .wrap { width: min(1080px, 100% - 2.5rem); margin-inline: auto; }
+
+  /* Header */
+  header { padding: 1.25rem 0; }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .brand { font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em; text-decoration: none; display: inline-flex; align-items: center; gap: .6rem; }
+  .brand-mark { display: inline-flex; flex-direction: column; gap: 3px; }
+  .brand-mark i { display: block; height: 4px; border-radius: 2px; }
+  .brand-mark i:nth-child(1) { width: 22px; background: var(--lane-a); }
+  .brand-mark i:nth-child(2) { width: 16px; background: var(--lane-b); margin-left: 6px; }
+  .brand-mark i:nth-child(3) { width: 20px; background: var(--lane-c); margin-left: 2px; }
+  .byline-small { color: var(--muted); font-size: .95rem; }
+  .byline-small strong { color: var(--ink); }
+
+  /* Hero */
+  .hero { padding: clamp(2rem, 6vw, 4.5rem) 0 clamp(2.5rem, 6vw, 4rem); }
+  h1 {
+    font-size: clamp(2.5rem, 7vw, 4.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    margin: 0 0 1.25rem;
+    font-weight: 800;
+    max-width: 14ch;
+  }
+  .lede { font-size: clamp(1.1rem, 2.2vw, 1.3rem); color: var(--muted); max-width: 40rem; margin: 0 0 1.75rem; }
+  .lede strong { color: var(--ink); font-weight: 700; }
+  .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+  .btn {
+    display: inline-block; padding: .85rem 1.5rem; border-radius: 999px;
+    background: var(--accent); color: var(--accent-ink); font-weight: 700; text-decoration: none;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .price-note { color: var(--muted); }
+  .price-note strong { color: var(--ink); font-size: 1.25rem; }
+
+  /* Week board: the hero visual. One lane per course. */
+  .board {
+    margin-top: clamp(2rem, 5vw, 3.25rem);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  .board-head, .lane { display: grid; grid-template-columns: 8.5rem repeat(5, minmax(5.5rem, 1fr)); gap: .5rem; align-items: stretch; min-width: 44rem; }
+  .board-head { padding-bottom: .6rem; border-bottom: 1px solid var(--line); margin-bottom: .6rem; color: var(--muted); font-size: .875rem; font-weight: 600; }
+  .board-head span:first-child { color: var(--ink); }
+  .lane { margin-bottom: .5rem; }
+  .lane:last-child { margin-bottom: 0; }
+  .lane-name { display: flex; align-items: center; font-weight: 700; font-size: .95rem; padding-left: .75rem; border-left: 5px solid var(--c); }
+  .slot {
+    border-radius: 9px; padding: .55rem .6rem; font-size: .85rem; line-height: 1.3; font-weight: 600;
+    background: color-mix(in srgb, var(--c) 16%, var(--surface));
+    color: var(--ink);
+    min-height: 3.1rem; display: flex; align-items: center;
+  }
+  .slot.quiz { background: var(--c); color: #fff; }
+  @media (prefers-color-scheme: dark) { .slot.quiz { color: #0e1424; } }
+  .slot.empty { background: transparent; border: 1px dashed var(--line); color: var(--muted); font-weight: 500; }
+  .board-caption { margin: .9rem 0 0; font-size: .875rem; color: var(--muted); }
+
+  /* Sections */
+  section { padding: clamp(2.5rem, 6vw, 4.5rem) 0; }
+  h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1.1; letter-spacing: -0.025em; margin: 0 0 .75rem; }
+  .section-intro { color: var(--muted); max-width: 38rem; margin: 0 0 2.25rem; }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; grid-template-columns: repeat(3, 1fr); counter-reset: step; }
+  .steps li {
+    counter-increment: step;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 1.5rem; position: relative;
+  }
+  .steps li::before {
+    content: counter(step);
+    display: inline-grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%;
+    background: var(--accent); color: var(--accent-ink); font-weight: 800; margin-bottom: 1rem;
+  }
+  .steps h3 { margin: 0 0 .4rem; font-size: 1.2rem; letter-spacing: -0.01em; }
+  .steps p { margin: 0; color: var(--muted); }
+
+  /* Pricing */
+  .pricing { display: grid; grid-template-columns: 1fr auto; gap: 1.5rem 3rem; align-items: center;
+    background: var(--ink); color: var(--bg); border-radius: var(--radius); padding: clamp(1.5rem, 4vw, 2.75rem); }
+  .pricing h2 { margin-bottom: .5rem; }
+  .pricing p { margin: 0; opacity: .8; max-width: 34rem; }
+  .price { font-size: clamp(3rem, 8vw, 4.5rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1; white-space: nowrap; }
+  .price small { font-size: 1.1rem; font-weight: 600; letter-spacing: 0; opacity: .75; }
+
+  /* Byline */
+  .built-by { text-align: center; padding: clamp(3rem, 8vw, 5.5rem) 0; border-top: 1px solid var(--line); }
+  .built-by p { margin: 0; color: var(--muted); }
+  .built-by .name { display: block; font-size: clamp(2rem, 6vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em; color: var(--ink); line-height: 1.1; margin-top: .35rem; }
+  .built-by .label { font-size: 1.1rem; font-weight: 600; }
+
+  footer { padding: 0 0 2.5rem; color: var(--muted); font-size: .9rem; text-align: center; }
+
+  @media (max-width: 760px) {
+    .steps { grid-template-columns: 1fr; }
+    .pricing { grid-template-columns: 1fr; }
+    .byline-small { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="StudyLane home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      StudyLane
+    </a>
+    <span class="byline-small">Built by <strong>Aneesh Burra</strong></span>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <h1>Every course, one study plan.</h1>
+    <p class="lede">
+      StudyLane reads your syllabi and notes, then builds a <strong>week-by-week study schedule</strong>, practice quizzes, and flashcards for each of your courses. Instead of piecing together deadlines and exam dates yourself, you get one plan that fits all your classes at once, for less than a coffee a month.
+    </p>
+    <div class="cta-row">
+      <a class="btn" href="#how">See how it works</a>
+      <span class="price-note"><strong>$7</strong> / month</span>
+    </div>
+
+    <div class="board" role="img" aria-label="Example week of a study schedule with one lane per course, showing readings, flashcards, and quizzes.">
+      <div class="board-head" aria-hidden="true">
+        <span>This week</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span>
+      </div>
+      <div class="lane" style="--c: var(--lane-a)" aria-hidden="true">
+        <div class="lane-name">Organic Chem</div>
+        <div class="slot">Read ch. 7</div>
+        <div class="slot empty">Rest</div>
+        <div class="slot">Flashcards: reactions</div>
+        <div class="slot">Practice set</div>
+        <div class="slot quiz">Quiz</div>
+      </div>
+      <div class="lane" style="--c: var(--lane-b)" aria-hidden="true">
+        <div class="lane-name">Statistics</div>
+        <div class="slot">Lecture notes</div>
+        <div class="slot">Problem set 4</div>
+        <div class="slot empty">Rest</div>
+        <div class="slot quiz">Quiz</div>
+        <div class="slot">Review misses</div>
+      </div>
+      <div class="lane" style="--c: var(--lane-c)" aria-hidden="true">
+        <div class="lane-name">Macroeconomics</div>
+        <div class="slot empty">Rest</div>
+        <div class="slot">Read ch. 11</div>
+        <div class="slot">Flashcards: terms</div>
+        <div class="slot">Midterm outline</div>
+        <div class="slot quiz">Quiz</div>
+      </div>
+      <div class="lane" style="--c: var(--lane-d)" aria-hidden="true">
+        <div class="lane-name">Intro to Programming</div>
+        <div class="slot">Lab 5</div>
+        <div class="slot quiz">Quiz</div>
+        <div class="slot">Debug practice</div>
+        <div class="slot empty">Rest</div>
+        <div class="slot">Lab 6 start</div>
+      </div>
+      <p class="board-caption">Illustration of the kind of schedule StudyLane generates. Course names are examples.</p>
+    </div>
+  </div>
+
+  <section id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <p class="section-intro">Three steps, and the setup takes about as long as finding your syllabi.</p>
+      <ol class="steps">
+        <li>
+          <h3>Upload your syllabi and notes</h3>
+          <p>Add a syllabus for each course, plus any lecture notes or slides you already have.</p>
+        </li>
+        <li>
+          <h3>Get your weekly schedule</h3>
+          <p>StudyLane lays out what to study each week across all your courses, working around your exams and deadlines.</p>
+        </li>
+        <li>
+          <h3>Study with quizzes and flashcards</h3>
+          <p>Practice with quizzes and flashcards generated from your own course material, so you study what you will actually be tested on.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="pricing" style="padding-top:0">
+    <div class="wrap">
+      <div class="pricing">
+        <div>
+          <h2>One plan for all your courses</h2>
+          <p>No per-course fees. Upload as many syllabi as you are taking this semester.</p>
+        </div>
+        <div class="price">$7<small>/month</small></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="built-by">
+    <div class="wrap">
+      <p class="label">Built by</p>
+      <span class="name">Aneesh Burra</span>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">StudyLane is a placeholder name. Early concept page.</div>
+</footer>
+
+</body>
+</html>
