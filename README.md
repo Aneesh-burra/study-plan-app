@@ -1,55 +1,20 @@
 # StudyLane
 
-Landing page for StudyLane (placeholder name), a planned $7/month web app that turns college students' syllabi and notes into a week-by-week study schedule, practice quizzes, and flashcards.
+StudyLane turns syllabus text and lecture notes into a weekly schedule, practice quizzes, and flashcards. Built with Next.js, Neon Postgres, OpenAI, and Stripe.
 
-Built by Aneesh Burra. Next.js (App Router), plain JavaScript and CSS, no backend yet.
+## Local setup
 
-## Run locally
+1. Run `npm ci`.
+2. Copy `.env.example` to `.env.local`. Set `DATABASE_URL` to a Neon connection and `OPENAI_API_KEY` to a funded server-side OpenAI key.
+3. For checkout, create a recurring $7 USD monthly price in Stripe and set `STRIPE_PRICE_ID` and its matching `STRIPE_SECRET_KEY`. Enable the Stripe customer portal so subscribers can manage or cancel a subscription.
+4. Run `npm run db:migrate`. The migration also upgrades the original accounts database in place.
+5. To create the assignment demo, add `DEMO_PASSWORD` with the assigned password to your local env file and run `node --env-file=.env.local scripts/seed-demo.mjs`. Sign in normally as `demo@demo.com`. The demo has paid feature access and keeps generated plans in its current page only because its credentials are shared.
+6. Run `npm run dev` and visit http://localhost:3000.
 
-Requires Node.js 20.9 or newer (https://nodejs.org).
+## Production setup
 
-```bash
-npm install
-npm run dev
-```
+Run the migration and seed against the production Neon database before deploying the code. In Vercel, set the production database, OpenAI and Stripe variables listed in `.env.example`, with `APP_URL` set to the public app origin. Use matching live-mode Stripe keys and prices to accept real payments. The seed password is only needed when running the seed script. Keep secrets in environment variables and out of Git.
 
-Open http://localhost:3000. The page reloads as you edit `app/page.js` or `app/globals.css`.
+Push to the GitHub branch connected to Vercel, check the production deployment, and verify signup, logout, repeat login, the seeded demo login and AI generation, and Stripe Checkout. StudyLane checks Stripe directly for active subscriber access. Generation is capped at 20 attempts per account per UTC day, including the shared demo.
 
-To test the production build:
-
-```bash
-npm run build
-npm start
-```
-
-## Accounts and database (Neon Postgres)
-
-Sign up, log in, log out and persistent login are built in. Users and sessions live in Postgres via the `DATABASE_URL` environment variable.
-
-- Passwords are hashed with scrypt (salted) and never stored in plain text.
-- The browser gets a random token in an httpOnly cookie. The database stores only its SHA-256 hash, and sessions last 30 days.
-- Tables are defined in `db/schema.sql` (`users`, `sessions`).
-
-Local setup:
-
-1. Copy `.env.example` to `.env.local` and set `DATABASE_URL` to your Neon connection string (or run `vercel env pull .env.local`).
-2. Create the tables: `npm run db:migrate`, or paste `db/schema.sql` into the Neon SQL Editor.
-3. `npm run dev`, then try /signup.
-
-On Vercel, add `DATABASE_URL` under Project Settings > Environment Variables (the Neon integration does this for you), then redeploy.
-
-## Deploy on Vercel
-
-1. Push this folder to a GitHub repo.
-2. At vercel.com, choose **Add New... > Project** and import the repo.
-3. Keep the detected Next.js settings and click **Deploy**.
-
-## Layout
-
-- `app/page.js`: homepage content
-- `app/actions.js`: sign up, log in, log out
-- `lib/`: database access, password hashing, sessions
-- `db/schema.sql`: table definitions
-- `app/layout.js`: page title and description
-- `app/globals.css`: styles
-- `app/icon.svg`: favicon
+For the Canvas submission, sign up a fresh account and capture Neon’s users table showing the real signup rows. Hide the password_hash column in the screenshot. Put the screenshot and the public Vercel and GitHub URLs on one page.

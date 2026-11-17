@@ -183,3 +183,26 @@ button.btn:disabled { opacity: .6; cursor: default; }
 .auth-alt { margin: 0; color: var(--muted); font-size: .95rem; }
 .auth-alt a { color: var(--accent); font-weight: 600; }
 @media (max-width: 760px) { .header-right { gap: 0; } }
+
+.study-dashboard { width: min(860px, calc(100% - 32px)); margin: 40px auto; }
+.study-dashboard .auth-card { width: 100%; max-width: none; margin: 0; }
+.dashboard-header, .plan-grid { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.dashboard-header { margin-bottom: 24px; }
+.plan-grid > label { flex: 1; min-width: 0; }
+.plan-form { display: grid; gap: 14px; margin-top: 24px; }
+.plan-form label { display: grid; gap: 6px; font-weight: 600; }
+.plan-form input, .plan-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #777;
+  border-radius: 8px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+}
+.plan-form textarea { resize: vertical; }
+.plan-form button { justify-self: start; }
+.plan-form :disabled { opacity: .65; }
+.plan-result { margin-top: 24px; }
+.plan-result details { padding: 12px 0; border-bottom: 1px solid #7775; }
+.plan-result summary { cursor: pointer; }

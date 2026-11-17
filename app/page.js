@@ -70,8 +70,8 @@ const audience = [
 
 const steps = [
   {
-    title: "Upload your syllabi and notes",
-    text: "Add a syllabus for each course, plus any lecture notes or slides you already have.",
+    title: "Add your syllabi and notes",
+    text: "Paste syllabus text, deadlines, and lecture notes to build a plan for a course or a group of courses.",
   },
   {
     title: "Get your weekly schedule",
@@ -86,7 +86,7 @@ const steps = [
 const reasons = [
   [
     "One plan for every course.",
-    " You pay once, not per class, however many syllabi you upload.",
+    " One subscription covers all your courses.",
   ],
   [
     "It replaces hours of planning.",
@@ -128,7 +128,7 @@ export default function Home() {
         <div className="wrap hero">
           <h1>Every course, one study plan.</h1>
           <p className="lede">
-            StudyLane is for <strong>college students juggling several courses</strong>. Upload
+            StudyLane is for <strong>college students juggling several courses</strong>. Paste
             your syllabi and notes, and it builds a week-by-week study schedule, practice quizzes,
             and flashcards for every class. Instead of piecing together deadlines and exam dates
             yourself, you get one plan that fits all your courses at once, for $7 a month.

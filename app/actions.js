@@ -32,6 +32,7 @@ const getDummyHash = () => (dummyHash ??= hashPassword("not-a-real-password"));
 
 export async function signup(_prev, formData) {
   const { email, password } = readForm(formData);
+  if (email === "demo@demo.com") return { error: "Use the login page for the demo account.", email };
   if (!EMAIL.test(email) || email.length > 254) {
     return { error: "Enter a valid email address.", email };
   }
