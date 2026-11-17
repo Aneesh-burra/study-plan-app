@@ -1,11 +1,12 @@
 import { neon } from "@neondatabase/serverless";
 import { hashPassword } from "../lib/password.js";
 
-if (!process.env.DATABASE_URL || !process.env.DEMO_PASSWORD) {
+const url = process.env.DATABASE_URL || process.env.STUDY_LANE_DATABASE_URL;
+if (!url || !process.env.DEMO_PASSWORD) {
   throw new Error("Set DATABASE_URL and DEMO_PASSWORD before seeding.");
 }
 
-const sql = neon(process.env.DATABASE_URL);
+const sql = neon(url);
 const email = "demo@demo.com";
 const hash = await hashPassword(process.env.DEMO_PASSWORD);
 const rows = await sql`

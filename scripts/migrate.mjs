@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { neon } from "@neondatabase/serverless";
 
-const url = process.env.DATABASE_URL;
+const url = process.env.DATABASE_URL || process.env.STUDY_LANE_DATABASE_URL;
 if (!url) {
   console.error("DATABASE_URL is not set. Put it in .env.local first.");
   process.exit(1);
