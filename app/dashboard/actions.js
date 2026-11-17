@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { checkoutUrl, createCustomer, hasAccess, portalUrl } from "../../lib/billing";
+import { checkoutUrl, createCustomer, getBillingState, hasAccess, portalUrl } from "../../lib/billing";
 import { store } from "../../lib/db";
 import { getUser } from "../../lib/session";
 import { generateStudyPlan } from "../../lib/study-plan";
@@ -41,7 +41,7 @@ export async function openBilling() {
   if (user.is_demo) redirect("/dashboard");
   let url;
   try {
-    if (await hasAccess(user)) {
+    if ((await getBillingState(user)).canManage) {
       url = await portalUrl(user.stripe_customer_id);
     } else {
       const customerId = user.stripe_customer_id ||

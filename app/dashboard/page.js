@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { hasAccess } from "../../lib/billing";
+import { getBillingState } from "../../lib/billing";
 import { store } from "../../lib/db";
 import { getUser } from "../../lib/session";
 import { logout } from "../actions";
@@ -16,11 +16,13 @@ export default async function DashboardPage({ searchParams }) {
   if (!user) redirect("/login");
   const { plan, billing } = await searchParams;
   const validId = typeof plan === "string" && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(plan);
-  const [paid, saved, selected] = await Promise.all([
-    hasAccess(user).catch(() => null),
+  const [subscription, saved, selected] = await Promise.all([
+    getBillingState(user).catch(() => null),
     user.is_demo ? [] : store.listPlans(user.id),
     validId && !user.is_demo ? store.getPlan(user.id, plan) : null,
   ]);
+
+  const paid = subscription?.paid;
 
   return (
     <main className="study-dashboard">
@@ -33,11 +35,14 @@ export default async function DashboardPage({ searchParams }) {
         <p className="auth-intro">Signed in as <strong>{user.email}</strong>.</p>
         {billing === "error" && <p role="alert">Billing is unavailable. Please try again later.</p>}
         {billing === "success" && !paid && <p role="status">Your payment is being confirmed. Refresh in a moment.</p>}
-        {paid === null && <p role="alert">Subscription status is temporarily unavailable.</p>}
-        {!user.is_demo && paid !== null && (
+        {!subscription && <p role="alert">Subscription status is temporarily unavailable.</p>}
+        {!user.is_demo && subscription && (
           <form action={openBilling}>
-            <button className="btn">{paid ? "Manage subscription" : "Subscribe for $7/month"}</button>
+            <button className="btn">{subscription.canManage ? "Manage subscription" : "Subscribe for $7/month"}</button>
           </form>
+        )}
+        {subscription?.canManage && !paid && (
+          <p>Open the billing portal to review your payment details and restore access.</p>
         )}
         {paid && <PlanForm />}
         {saved.length > 0 && (
