@@ -68,7 +68,7 @@ export async function login(_prev, formData) {
     if (!found || !ok) {
       return { error: "Incorrect email or password.", email };
     }
-    await startSession(found.id);
+    await startSession(found.id, found.email === "demo@demo.com");
   } catch (e) {
     return failure(e, email);
   }

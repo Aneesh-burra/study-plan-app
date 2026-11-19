@@ -35,3 +35,14 @@ create table if not exists study_generation_usage (
   attempts integer not null,
   primary key (user_id, usage_date)
 );
+
+alter table study_plans add column if not exists workspace text not null default '';
+alter table study_plans add column if not exists completed_tasks jsonb not null default '{}'::jsonb;
+alter table study_plans add column if not exists missed_questions jsonb not null default '{}'::jsonb;
+alter table study_plans add column if not exists is_sample boolean not null default false;
+
+create unique index if not exists study_plans_sample_workspace_idx
+  on study_plans (user_id, workspace) where is_sample;
+
+create index if not exists study_plans_workspace_created_idx
+  on study_plans (user_id, workspace, created_at desc);
