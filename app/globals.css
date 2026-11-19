@@ -268,3 +268,13 @@ button.btn:disabled { opacity: .6; cursor: default; }
   .dashboard-columns, .plan-grid { grid-template-columns: 1fr; }
   .dashboard-header nav { gap: .65rem; }
 }
+
+.weekly-preview, .student-example { padding-block: 2rem 0; }
+.weekly-preview .board { margin-top: 1rem; }
+.student-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
+.student-card > div { padding: clamp(1.25rem, 4vw, 2.5rem); }
+.student-card > div > p:not(.eyebrow) { color: var(--muted); }
+.student-card figure { margin: 0; position: relative; }
+.student-card img { display: block; width: 100%; height: auto; }
+.student-card figcaption { position: absolute; bottom: .6rem; left: .6rem; padding: .2rem .45rem; border-radius: .3rem; background: #13203b; color: white; font-size: .75rem; }
+@media (max-width: 720px) { .student-card { grid-template-columns: 1fr; } }
