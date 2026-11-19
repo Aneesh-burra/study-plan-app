@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import AuthNav from "../components/AuthNav";
 
@@ -27,6 +28,11 @@ export default function Home() {
             <span className="price-note"><strong>$7</strong> / month</span>
           </div>
         </div>
+        <figure className="wrap dashboard-shot">
+          <Image src="/dashboard.png" width={1164} height={710} sizes="(max-width: 1120px) calc(100vw - 40px), 1080px"
+            alt="The StudyLane dashboard showing dated statics tasks, one completed item, and two recommended next steps." />
+          <figcaption>The StudyLane dashboard with a sample statics course.</figcaption>
+        </figure>
         <section className="wrap workflow" id="how">
           <h2>From syllabus to study session</h2>
           <ol className="steps">{workflow.map(([title, description]) => (
